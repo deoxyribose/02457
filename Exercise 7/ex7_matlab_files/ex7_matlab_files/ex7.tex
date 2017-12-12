@@ -1,0 +1,150 @@
+\documentclass[times,12pt]{article}    % Specifies the document style.
+\usepackage{amsmath}
+
+\textwidth 16cm
+\textheight 24cm
+\oddsidemargin 0cm
+\topmargin -1cm
+
+\def\xb{{\bf x}}
+\def\zb{{\bf z}}
+\def\wb{{\bf w}}
+\def\Ac{\mathcal{A}}
+\def\Dc{\mathcal{D}}
+\def\mub{\text{\boldmath $\mu$}}
+\def\Sigb{\text{\boldmath $\Sigma$}}
+\def\Sb{\text{\boldmath $S$}}
+\def\L{\text{\boldmath $\Lambda$}}
+\def\Ub{{\bf U}}
+\def\vb{{\bf v}}
+\def\ub{{\bf u}}
+\def\db{{\bf d}}
+\def\gb{{\bf g}}
+\def\Hb{{\bf H}}
+\def\Wb{{\bf W}}
+\def\squeeze{\itemsep=0pt\parskip=0pt}
+
+\begin{document}
+\section*{{\it COURSE 02457}\\[5mm] Non-Linear Signal Processing: Exercise 7}
+
+This exercise is based on C. M. Bishop: {\em Pattern Recognition
+and Machine Learning} Chapter~9. Print and comment on the figures
+produced by the software as outlined below at the {\bf
+Checkpoints}.
+
+\subsection*{Density Estimation}
+
+We observe a stochastic multi-channel $d$-dimensional signal $\xb$
+and our aim is to model the density $p(\xb) \sim p(\xb|\wb)$, where
+the family $p(\xb|\wb)$ is a given parametric density. The
+training set is ${\cal D} = \{\xb_1,\xb_2,\xb_3,...,\xb_N\}$ and the
+likelihood function for $\wb$ is given by $p({\cal D}|\wb) = \prod_{n=1}^{N}
+p(\xb_n|\wb) $. The cost function is minus the log likelihood:
+\begin{eqnarray}
+E(\wb) = \sum_{n=1}^{N} - \log  p(\xb_n|\wb). \nonumber
+\end{eqnarray}
+The {\it test error} of a density model can be estimated by
+evaluating the cost function on a test set.
+
+
+The mixture of Gaussians model family is defined as
+\begin{eqnarray}
+p(\xb|\wb) = \sum_{k=1}^{K} p(\xb|\wb_k)\pi_k \nonumber \ ,
+\end{eqnarray}
+where each component density is a normal distribution $\wb_k = \{
+\mub_k,\Sigb_k\}$. Here we will invoke a family of ``isotropic''
+Gaussians, i.e., Gaussians with covariance matrices that are
+scaled unit matrices,
+\begin{eqnarray}
+p(\xb|\mub_k,\sigma^{2}_k) &=&
+\frac{1}{(2\pi\sigma^{2}_{k})^{d/2}}\exp\left(-\frac{||\xb
+-\mub_k||^2}{2\sigma^{2}_k}\right) \ . \nonumber
+\end{eqnarray}
+%
+The Expectation-Maximization algorithm is a general scheme for
+maximum likelihood estimation. For the mixture of Gaussians it leads to
+the iterative procedure discussed in Bishop page 438-439. In the E-step, the means, variances and mixing
+proportions are fixed and we 
+update all responsibilities $\gamma_{nk}\equiv p(k|\xb_n)$, $n=1,\ldots,N$ and $k=1,\ldots,K$ in parallel
+$$
+\gamma_{nk} = p(k|\xb_n) =
+\frac{p(\xb|\wb_k)\pi_k}{\sum_{k'=1}^{K} p(\xb|\wb_{k'})\pi_{k'}} \ .
+$$
+In the M-step, the responsibilities are fixed and we update the means, variances and mixing
+proportions. We can write the update compactly by introducing $N_k$ the effective number of points assigned to component $k$:
+\begin{eqnarray}
+N_k & = & \sum_{n=1}^{N} \gamma_{nk} \nonumber\\[2mm] 
+\mub^{\rm new}_k &= &\frac{1}{N_k}  \sum_{n=1}^{N} \gamma_{nk} \xb_n  \nonumber\\[2mm]
+(\sigma^{\rm new}_k)^{2} &= &\frac{1}{d N_k} \sum_{n=1}^{N}
+\gamma_{nk} ||\xb_n-\mub^{\rm new}_k||^2\nonumber\\[2mm]
+\pi_k^{\rm new} &= &\frac{N_k}{N} \ . \nonumber
+\end{eqnarray}
+The rules for
+updating $\mub_k$ and $\sigma^{2}_k$ are very similar to the well
+known rules for computing mean and variance of a normal
+distribution, but here weighted by the probability $\gamma_{nk}$
+that a given data point $\xb_n$ belongs to mixture component $k$.
+
+The {\it K-means} clustering algorithm is an important
+simplification of these rules obtained by using each data point
+only once, namely for updating the Gaussian component which it is
+most associated with and by letting all the component variances be
+equal (Bishop pages 424-430, 438-439). In the context of the
+K-means algorithm a component is often referred to as a {\it
+cluster}.
+
+\subsubsection*{Checkpoint 7.1}
+
+Use the program {\tt main7a.m} to perform K-means analysis on
+synthetic two-dimensional data with three clusters. The program
+creates two plots. The first shows the training points and the
+current position of the cluster centers as time progress. You can
+zoom to inspect the details of the convergence. The second figure
+shows the assignment of points to clusters at the end of the
+procedure. Is the final configuration sensitive to how the initial
+cluster centers are located? You can change the distribution of
+the initial clusters by changing the parameter {\tt initial-width}
+and you can change the number of clusters {\tt K}. Sometimes you
+will see that a cluster never moves away from its initial
+position, why?
+
+
+\subsubsection*{Checkpoint 7.2}
+
+The program {\tt main7b.m} uses the Expectation-Maximization
+algorithm to adapt a Gaussian mixture, as described above. The
+program shows three plots. The first plot shows the training (blue)
+and test (yellow) points, the second shows the temporal evolution
+of the variance parameters and the training and test errors.
+Create a flow chart of the program {\tt main7b.m} and its
+functions. The test error is the mean negative log likelihood (the
+cost function) estimated on the test set. Change the number of
+clusters $K=2,3,4,5,6$ and inspect the temporal evolution and
+final value of the test error. Explain how the Gaussian mixture
+can over-fit.
+
+\subsubsection*{Checkpoint 7.3}
+In {\tt main7b.m} you can choose three different strategies for
+initializing the cluster centers and initial variances.
+ Set $K=5$ and run the program with the three different schemes. Describe the
+strategies and their results. You will see a problem with the Gaussian mixture and
+the EM algorithm for {\tt method 3}, where one component converge towards a very small variance
+and is centered on a specific data point. Explain why this is a serious overfit.
+
+\subsubsection*{Challenge I (not part of the curriculum)}
+
+Modify the EM mixture of Gaussians program so that instead of the isotropic Gaussian full covariances $\Sigb_k$ is estimated. Visualise the one standard deviation contour of each of the components of the mixture. Hint: the points can created by $\Sigb_k^{\frac{1}{2}} {\bf u}(t)+\mub_k$, where ${\bf u}(t)=\left[ \begin{array}{c} \cos(t) \\ \sin(t) \end{array} \right]$ is taken as the points on the unit circle: $t \in [0,2\pi]$. The square root of the covariance  matrix can be found using the {\tt sqrtm}-function in Matlab. We will use these results in the Challenge to Exercise 8.
+
+\subsubsection*{Challenge II (not part of the curriculum)}
+
+Implement the K-mediods algorithm. Run it one the Gaussian simulated data using the Manhatten norm (sum of absolute difference for each dimension) as the cost funtion.
+
+\subsubsection*{Challenge III (not part of the curriculum)}
+
+Explain why K-means cannot be seen as a special limit of the mixture of Gaussians, that is there is not a specific setting of the covariance matrix where K-means and mixture of Gaussians give exactly the same updates in both the E- and M-steps.
+
+
+\vspace{1cm} DTU, 1999 Lars Kai Hansen (2007 Ole Winther)
+
+
+\end{document}

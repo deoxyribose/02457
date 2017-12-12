@@ -1,0 +1,150 @@
+
+\documentclass[12pt]{article}    % Specifies the document style.
+\usepackage{amsmath}
+\usepackage{times}
+\usepackage{t1enc}
+\textwidth 15cm
+\textheight 23cm
+\oddsidemargin 0cm
+%
+\renewcommand{\floatpagefraction}{0.98}
+\renewcommand{\textfraction}{0.02}
+\renewcommand{\topfraction}{0.98}
+\renewcommand{\bottomfraction}{0.98}
+\def\xb{{\bf x}}
+\def\zb{{\bf z}}
+\def\wb{{\bf w}}
+\def\Ac{\mathcal{A}}
+\def\Dc{\mathcal{D}}
+\def\mub{\text{\boldmath $\mu$}}
+\def\Sigb{\text{\boldmath $\Sigma$}}
+\def\Sb{\text{\boldmath $S$}}
+\def\L{\text{\boldmath $\Lambda$}}
+\def\Ub{{\bf U}}
+\def\vb{{\bf v}}
+\def\ub{{\bf u}}
+\def\db{{\bf d}}
+\def\gb{{\bf g}}
+\def\Hb{{\bf H}}
+\def\Wb{{\bf W}}
+\def\ab{{\bf a}}
+\def\Ab{{\bf A}}
+\def\Bb{{\bf B}}
+
+\begin{document}
+
+\section*{Course 02457 Non-Linear Signal Processing, Exercise 9}
+
+This exercise is based on C. M. Bishop: {\em Pattern Recognition
+and Machine Learning}, section~2.5.
+
+Print and comment on the figures produced by the software as outlined below at the {\bf
+Checkpoints}.
+
+\subsection*{Probability density function estimation using a kernel smoother}
+A training set of N data points $D=\{\xb_1,\xb_2,..,\xb_N\}$ is
+extrapolated `smoothened'  to test points $\xb$
+\begin{eqnarray}
+p(\xb|D,h) &=& \frac{1}{N} \sum_{n=1}^{N} k(\xb|\xb_n,h) \nonumber
+\end{eqnarray}
+with a `kernel' $k(\xb|\xb_n,h)$ given eg. by
+\begin{eqnarray}
+k(\xb|\xb_n,h) &=& \left(\frac{1}{2\pi h^2}\right)^{d/2} \exp
+\left(-\frac{1}{2h^2}(\xb-\xb_n)^2\right)\nonumber
+\end{eqnarray}
+where the dimension of $\xb$ is $d$.
+The parameter $h$ acts as a smoothing control. If
+$h$ is small we roughly get a set of local `delta functions' centered on the training
+data set, if $h$, on the other hand, is very large we get a near-uniform distribution.
+
+\subsubsection*{Checkpoint 9.1}
+We will use a validation set  - a test set for tuning of parameters - of $M$ samples to find $h$.
+Explain why the function
+\begin{eqnarray}
+E(h)= \frac{1}{M}\sum_{m=1}^{M} -\log p(\xb_m|D,h) &=& \frac{1}{M}\sum_{m=1}^{M} -\log \frac{1}{N} \sum_{n=1}^{N} k(\xb_m|\xb_n,h) \nonumber
+\end{eqnarray}
+is a `test error'. Use the matlab script {\tt main9a.m} to generate data from a normal distribution
+in $d=2$. What is the optimal $h$ for this data set.
+Explain the structure of the densities obtained by the `optimal' $h$,
+and $h$'s that are too small and too big.
+
+How does the optimal $h$ depend on the training sample size $N$?
+
+\subsection*{Signal detection using nearest neighbor methods}
+We will use nearest neighbor methods for non-parametric classification.
+Assume that a training set with $N$ class labeled samples is given.
+
+In the K-nearest-neighbor (KNN) classifier we classify test points $\xb$ by voting among
+the $K$ nearest neighbors in the training set. We implement this by brute force, i.e., simply by computing the
+distance from the test point to all training points and sorting the distances.
+
+A so-called `leave one out' estimate of the classification test error
+can be obtained by computing the distances from every training point
+to its $K$ neighbors (not including itself!)
+and in turn estimate the classification error of the voting result
+among the neighbors relative to the given training point's label.
+
+
+
+\subsection*{Pima indian data set}
+
+This is a data set where the task is to classify a
+population of women according to the risk of diabetes (binary classification).
+There are 7 input variables, 200 training examples and 332 test
+examples. 68 (34\%) in the training set and 109 (32.82\%) in the test
+set have been diagnosed with diabetes.
+In Brian Ripley's textbook {\em Pattern Recognition and Neural Networks} he
+states that his best method obtains about 20\% misclassifications on the test data set.
+The input variables are:
+
+\begin{enumerate}
+\item Number of pregnancies
+\item Plasma glucose concentration
+\item Diastolic blood presure
+\item Triceps skin fold thickness
+\item Body mass index (weight/height$^2$)
+\item Diabetes pedigree function
+\item Age
+\end{enumerate}
+
+The target output is $1$ for examples diagnosed as diabetes, and $2$ for healthy subjects.
+
+\subsubsection*{Checkpoint 9.2}
+Explain how the `leave one out' error can be used for identifying the optimal number
+of neighbors for voting. Use the matlab script {\tt main9b.m}
+to classify the diabetes diagnosis data set.
+What is the optimal $K$? How well is the KNN performance compared
+to neural networks and other methods considered earlier in the course.
+
+Consider classification from a subset of the seven input variable measures.
+Estimate the performance for a few subsets, can you find a subset
+with performance equal or better than that of the full feature set?
+
+\subsection*{Local linear regression among nearest neighbors}
+
+We can design a non-parametric function approximation scheme by
+performing linear regression among the K-nearest neighbors. We apply the method
+to prediction of the sunspot test data set.
+
+We use the linear model from exercise 3 and 4 to perform the estimation
+in the test set.
+
+\subsubsection*{Checkpoint 9.3}
+Inspect the matlab script {\tt main9c.m}. Explain the role of the parameter `alpha'.
+Why is it necessary to regularize the linear model?
+What is the meaning of the parameter $d$ and what is optimal value of $d$. 
+Make a drawing that explains the algorithm conceptually, e.g.,  in a case with two-dimensional input.
+
+Compare the  quality of the algorithm's predictions with
+the neural network based predictions we found in exercise 5. What would happen if we used $K = N_{train}$?.
+
+\subsubsection*{Challenge (not part of the curriculum)}
+Inspect the local linear models in Checkpoint 9.3 for test points  with respect to mean, variance and 'outliers' (e.g., order test points according to how far away their local linear models are from the mean). Where are the test points with 'outlier models', located in the sun-spot data?. Are the outliers consistent with respect to models trained with different 'K' and 'alpha'?
+
+
+
+\vspace{2cm}
+\noindent DTU, November 2007, 2013, Lars Kai Hansen
+
+
+\end{document}

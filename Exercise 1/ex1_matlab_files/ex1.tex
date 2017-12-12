@@ -1,0 +1,112 @@
+\documentstyle[12pt]{article}    % Specifies the document style.
+\textwidth 16cm
+\textheight 22cm
+\oddsidemargin 0cm
+\topmargin -1cm
+\def\x{{\bf x}}
+\def\w{{\bf w}}
+\def\squeeze{\itemsep=0pt\parskip=0pt}
+
+\begin{document}
+
+\section*{{\it COURSE 02457}\\[5mm] Non-Linear Signal Processing: Exercise 1}
+
+This exercise is based on C.M.\ Bishop: {\it Pattern Recognition
+and Machine Learning}, Sections 1.2, 1.5. The objective of this
+exercise is to become familiar with the relations between
+probability densities and histograms, Bayes' theorem, conditional
+distributions and decision rules.
+
+Print and comment on the figures produced by the software {\sf main1.m, norm1d.m, probconfus.m}
+as outlined below at the three {\bf Checkpoints}.
+
+
+\subsection*{Densities and histograms}
+A probability density function $p(x)$ specifies that the probability of the
+variable $x$ lying in the interval between any two points $a,b$ is
+\begin{equation}
+P(x \in [a,b]) = \int_{a}^{b} p(x) dx
+\end{equation}
+If $\{x_1,x_2,...,x_N\}$ is a set of points, the histogram of this set,
+ evaluated on the ordered set of points $[z_1,z_2,...,z_M]$ is defined
+ \begin{equation}
+H_j =  \sum_{x_{k}  \in [z_{j},z_{j+1}]} 1 \ \ ,j=1,...,M-1
+\end{equation}
+and the normalized histogram is given by
+\begin{equation}
+\tilde{H}_j = \frac{H_j}{\sum_{j'=1}^{M-1} H_{j'}}.
+\end{equation}
+The normalized histogram can be compared with the histogram approximation
+to the density
+\begin{equation}
+P_j =  \int_{z_{j}}^{z_{j+1}} p(x) dx \ \ j=1,...,(M-1).
+\end{equation}
+
+
+
+We here focus on the density of the normal distribution:
+\begin{equation}
+p(x|\mu, \sigma^2) = \frac{1}{\sqrt{2\pi \sigma^2}}\exp \left( -\frac{(x-\mu)^2}{2\sigma^2}\right)
+\end{equation}
+
+\vspace*{3mm}
+
+\noindent {\bf Checkpoint 1.1:} Use the program {\sf main1.m} to
+illustrate the relation between densities, histogram
+approximations to densities. Create samples from the univariate
+normal density using {\sf randn.m} and compare the sample
+histograms with the density of the normal distribution and with
+its histogram.
+
+
+\subsection*{Bayes' theorem}
+For real variables $x$ and labels $C_k=1,...,c$, Bayes' theorem reads,
+\begin{equation}
+P(C_k | x) = \frac{p(x|C_k) P(C_k)}{p(x)}
+\end{equation}
+
+If the class-conditional distributions are univariate normals with individual parameter sets
+we can use {\sf main1.m} to illustrate Bayes theorem.
+
+\vspace*{3mm}
+
+\noindent {\bf Checkpoint 1.2:} Define three univariate normals and plot the resulting densities. Set
+the {\sf prior probabilities} $P(C_k)$ and plot the resulting $p(x)$ and
+the posterior probabilities $P(C_k|x)$. Do this for different setting of the
+prior probabilities and comment on the densities you get. Can you create a situation in which a class
+has no points $x$ where it is most probable?
+
+
+\subsection*{Decision boundaries}
+
+A decision rule,  is a division of the
+space of $x$ so that each point is uniquely associated with
+a class $C_k$. We can set up a simple 1D decision rule by dividing the real axis into three
+intervals $I_1 = ]-\infty, d_1], I_2 = ]d_1, d_2], I_3 = ]d_2, \infty[$.
+
+One way to summarize the errors of a decision rule is the
+ error confusion matrix $R_{j,k}$  defined, e.g., as
+\begin{equation}
+R_{j,k} = \int_{I_j} p(x|C_k) dx
+\end{equation}
+
+\vspace*{3mm}
+
+\noindent {\bf Checkpoint 1.3:} Define the decision boundaries as above and compute
+ the error confusion matrix. Do this for different decision boundaries, plot the
+posteriors and the decision regions. Explain and comment on the confusion matrix.
+The matlab program also computes an "alternative" confusion matrix $CC$, explain the role of this matrix.
+
+%\subsection*{Challenge}
+%
+%Implement an error-reject mechanism as discussed by in Bishop section 1.10.1. Plot the relation
+%between the error rate and the reject rate. Comment on the initial slope of the relation for small reject
+%rates.
+
+
+\vspace*{2cm}
+\noindent DTU, September 2007,2013 \\[2mm]
+Lars Kai Hansen
+
+
+\end{document}

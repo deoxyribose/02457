@@ -1,0 +1,157 @@
+\documentclass[A4,12pt]{article}    % Specifies the document style.
+%\usepackage{figure}
+%\usepackage{psfrag}
+\usepackage{latexsym}
+\usepackage{amsmath,amsfonts}
+
+
+\textwidth 16cm
+\textheight 24cm
+\oddsidemargin 0cm
+\topmargin -1cm
+
+\def\xb{{\bf x}}
+\def\zb{{\bf z}}
+\def\wb{{\bf w}}
+\def\Ac{\mathcal{A}}
+\def\Dc{\mathcal{D}}
+\def\mub{\text{\boldmath $\mu$}}
+\def\Sigb{\text{\boldmath $\Sigma$}}
+\def\Sb{\text{\boldmath $S$}}
+\def\L{\text{\boldmath $\Lambda$}}
+\def\nub{\text{\boldmath $\nu$}}
+\def\Ub{{\bf U}}
+\def\vb{{\bf v}}
+\def\xb{{\bf x}}
+\def\ub{{\bf u}}
+\def\db{{\bf d}}
+\def\gb{{\bf g}}
+\def\Hb{{\bf H}}
+\def\Wb{{\bf W}}
+\def\Ib{{\bf I}}
+\def\squeeze{\itemsep=0pt\parskip=0pt}
+
+\begin{document}
+
+\section*{02457 Non-Linear Signal Processing,\\
+ Exercise 12: Dynamic linear models}
+
+This exercise is based on Christopher Bishop: {\it Machine
+Learning and Pattern Recognition}, sections 3.3, 13.1, 13.3, and on the ``Note for week 12'', uploaded with the slides for lecture 12 (in the Campusnet filesharing).
+
+The aim of the exercise is to illustrate dynamically updated linear learning and issues that arise in realtime application of learned models.
+
+
+\subsection*{Bayesian linear models}
+Let $\mathcal{D} = \{(\xb_1,t_1),(\xb_2,t_2),...,(\xb_N,t_N)\}$ be a data set of $N$ samples with $\xb \in \mathbb{R}^d$. We will focus on function approximation and assume the generative model is linear
+\begin{equation}
+ t   = \wb^{\top}\xb + \epsilon
+\end{equation}
+with $\epsilon \sim \mathcal{N}(0,\beta^{-1})$, i.e., normally distributed white noise with precision $\beta$. With these assumptions the likelihood function becomes
+\begin{equation}
+ p(\mathcal{D}|\wb,\beta)   =  \left(\sqrt{\frac{\beta}{2\pi}}\right)^{N} \exp\left(-\frac{\beta}{2}\sum_{n=1}^{N}(t_n-\wb^{\top}\xb_n )^2 \right)
+\end{equation}
+As in exercise 4 we will assign a standard Gaussian prior to the weights $\wb \sim \mathcal{N}(0,\alpha^{-1}\Ib) $, where $\Ib$ is a $d$-dimensional unit matrix, leading
+to the posterior distribution
+\begin{eqnarray}
+ p(\wb|\alpha,\beta,\mathcal{D}) &=& \frac{p(\mathcal{D}|\wb,\beta)p(\wb|\alpha)}{p(\mathcal{D}|\alpha,\beta)} \nonumber \\
+&\propto&\left(\sqrt{\frac{\beta}{2\pi}}\right)^{N} \exp\left(-\frac{\beta}{2}\sum_{n=1}^{N}(t_n-\wb^{\top}\xb_n)^2\right) \left(\sqrt{\frac{\alpha}{2\pi}}\right)^{d} \exp\left(-\frac{\alpha}{2}||\wb||^2\right). \nonumber
+\end{eqnarray}
+
+The posterior is a product of two normal probability density functions. Combining the exponents we obtain a quadratic form in $\wb$, hence again a normal distribution.
+For such a product there is a combination rule that we will need again below: The product between $\mathcal{N}(\mub_1,\Sigb_1)$ and $\mathcal{N}(\mub_2,\Sigb_2)$, is
+proportional to $\mathcal{N}(\mub_p,\Sigb_p)$ with mean vector and covariance matrix given by,
+\begin{eqnarray}
+ \mub_p &=& \left(\Sigb_1^{-1}+\Sigb_2^{-1}\right)^{-1}\left(\Sigb_1^{-1}\mub_1 + \Sigb_2^{-1}\mub_2 \right) \nonumber \\
+ \Sigb_p &=& \left(\Sigb_1^{-1}+\Sigb_2^{-1}\right)^{-1} \label{product rule}.
+\end{eqnarray}
+In this case the prior is given by $\mub_2 \equiv \mub_{\rm prior} ={\bf 0}$ and $\Sigb_2 \equiv \Sigb_{\rm prior} =\alpha^{-1}{\bf I}$.
+For the likelihood a bit of algebra leads to,
+\begin{eqnarray}
+ \mub_1 &\equiv&  \left(\sum_{n=1}^{N}\xb_n \xb_n^{\top}\right)^{-1}\sum_{n=1}^{N}\xb_n t_n \nonumber \\
+ \Sigb_1 &\equiv& \left(\beta \sum_{n=1}^{N}\xb_n \xb_n^{\top}\right)^{-1}.
+\end{eqnarray}
+Hence the posterior mean vector and covariance matrix are found as
+\begin{eqnarray}
+ \mub_p &\equiv&  \left(\alpha {\bf I} + \sum_{n=1}^{N}\xb_n \xb_n^{\top}\right)^{-1}\sum_{n=1}^{N}\xb_n t_n \nonumber \\
+ \Sigb_p &\equiv& \left(\alpha {\bf I} + \beta \sum_{n=1}^{N}\xb_n \xb_n^{\top}\right)^{-1}.
+\end{eqnarray}
+
+The predictive density is computed as
+\begin{eqnarray}
+  p(t_{N+1}|\xb_{N+1},\mathcal{D}) &=& \int p(t_{N+1}|\xb_{N+1},\wb) p(\wb|\mathcal{D}) d\wb.
+\end{eqnarray}
+This is again a normal distribution with mean and variance,
+\begin{eqnarray}
+ \mub_{t_{N+1}} &=& \mub_p^{\top}\xb_{N+1}, \nonumber \\
+ \sigma^2_{t_{N+1}} &= & \beta^{-1} + \xb^{\top}_{N+1} \Sigb_p \xb_{N+1}. \label{predictive mean}
+\end{eqnarray}
+
+
+
+\subsection*{Dynamic Bayesian models}
+The basic assumption in the previous derivation is that the parameter vector is stationary. In a dynamic setting we relax this assumption and assume that $\wb_n$ is changing as data arrives. A possible prior could be the simple Markovian random walk  $\wb_n =  \wb_{n-1} + \nub_n$ with $\nub_n \sim \mathcal{N}({\bf 0},\alpha^{-1}{\bf I})$,
+\begin{eqnarray}
+ p(\wb_n|\wb_{n-1},\alpha) &=&  \left(\sqrt{\frac{\alpha}{2\pi}}\right)^{d} \exp\left(-\frac{\alpha}{2}||\wb_n-\wb_{n-1}||^2\right), \label{dynprior} \nonumber
+\end{eqnarray}
+where a high value of precision parameter $\alpha$ means small changes in $\wb_n$ as time progresses.
+
+To simplify the notation, let us define $\zb_n =(t_n,\xb_n)$ and let us denote the set of all data observed until $n$ by $\zb_{1:n}$. We are interested in the 'dynamic posterior' $p(\wb_n|\zb_{1:n})$ and it turns out, it can be computed in a recursive manner. For the proportional quantity, the joint density $p(\wb_n ,\zb_{1:n})$, a forward recursion can be derived,
+\begin{eqnarray}
+ p(\wb_n ,\zb_{1:n}) &=& \int p(\wb_n ,\wb_{n-1}, \zb_{1:n})d\wb_{n-1} \label{dyn1} \\
+      &=& p(\zb_{n}|\wb_n)\int p(\wb_n | \wb_{n-1})p( \wb_{n-1},\zb_{1:(n-1)})d\wb_{n-1} \label{dyn5}.
+\end{eqnarray}
+
+  Here $p(\zb_{n}|\wb_n)= p(\zb_{n}|\wb_n, \beta)$  is the observation likelihood, while $p(\wb_n | \wb_{n-1})=p(\wb_n | \wb_{n-1},\alpha)$ is Markov prior.
+  As $p( \wb_{n-1},\zb_{1:(n-1)})$ is the sought joint distribution evaluated at the previous time step $n-1$, we see that by performing a single $d$-dimensional integral (wrt.\ $\wb_{n-1}$) and subsequent multiplication by $p(\zb_{n}|\wb_n)$ we arrive at the 'updated' joint distribution. The posterior distribution of $\wb_n$, in turn, can be obtained by normalization,
+
+\begin{equation}
+  p(\wb_n | \zb_{1:n})  = \frac{p(\wb_n ,\zb_{1:n})}{\int p(\wb_n ,\zb_{1:n}) d\wb_n}.
+\end{equation}
+Here we recognize the normalization constant is the model likelihood $p(\zb_{1:n} |{\rm Model} ) = \int p(\wb_n ,\zb_{1:n}) d\wb_n$, hence it is a by product of the `forward recursion'.
+
+For the linear model as analyzed above, we get specifically,
+\begin{eqnarray}
+ p(\zb_n|\wb_n,\beta)   &=& p(t_n|\wb_n,\xb_n,\beta)p(\xb_n) = \sqrt{\frac{\beta}{2\pi}}\exp\left(-\frac{\beta}{2}(t_n-\wb^{\top}\xb_n )^2 \right)p(\xb_n) \nonumber \\
+ p(\wb_n|\wb_{n-1},\alpha) &=&  \left(\sqrt{\frac{\alpha}{2\pi}}\right)^{d} \exp\left(-\frac{\alpha}{2}||\wb_n-\wb_{n-1}||^2\right). \nonumber
+\end{eqnarray}
+
+The recursion starts as  $p(\wb_1 ,\zb_1) \propto p(\zb_{1}|\wb_1) p(t_{1}|\xb_1,\wb_1)p(\xb_1)$, hence the quantity of interest starts out being proportional to a normal density function in terms of $\wb_1$.
+We also see that in order to compute the update for $p(\wb_2 ,\zb_{1:2})$ we perform an integral over the product of two normal distributions
+\begin{eqnarray}
+ p(\wb_2 ,\zb_{1:2}) &=& p(\zb_{2}|\wb_2,\beta)\int p(\wb_2 | \wb_1,\alpha)p(\wb_1,\zb_1)d\wb_{1}.
+\end{eqnarray}
+
+ The result of this integral is a again a normal distribution and as this is followed by multiplication by the local likelihood, also an un-normalized normal density, we obtain a $p(\wb_2 ,\zb_{1:2})$ which itself is proportional to a normal distribution. It then follows by induction that all the following terms $p(\wb_n ,\zb_{1:n})$ are (un-normalized) normal density functions, if we use it for the linear model.
+
+ Tracking the  means and covariances of these un-normalized density functions, which involves the product rule (Eq.\ \ref{product rule}) two times, we get a message passing scheme for mean and covariance of the un-normalized posterior $ p(\wb_n , \zb_{1:n}) $
+
+\begin{eqnarray}
+  \mub_{\wb,n} & = &  \left( \left( \Sigb_{\wb,n-1}^{-1} + \alpha^{-1}\right)^{-1} + \beta\xb_n\xb_n^{\top}\right)^{-1}\left( \Sigb_{\wb,n-1}^{-1}\mub_{\wb,n-1} + \beta t_n\xb_n\right) \nonumber \\
+  \Sigb_{\wb,n} & = & \left( \left(\Sigb_{\wb,n-1}^{-1} + \alpha^{-1}\right)^{-1} + \beta\xb_n\xb_n^{\top}\right)^{-1}
+  \end{eqnarray}
+
+At any given time we can use the predictive means in Eq.\ \ref{predictive mean} to find the estimator and the associated uncertainty.
+
+\subsubsection*{Checkpoint 12.1}
+Use the matlab script {\sf main12a.m} to create a sequence of weights for a dynamic linear model, using Eq.\ (\ref{dynprior})with a specified `teacher' $\alpha_0$. Inspect the sequence of weights, why is the magnitude increasing?. Generate a similar test sequence also based on  $\alpha_0$.
+
+Based on the two sequences of weights we generate sequences of training and test observations $(t_n,\xb_n)$. For the observatoins, we simulate i.i.d.\ normal input and additive noise with precision $\beta$. Using the dynamic updates we will make predictions on train and test sets for specific choices of $\alpha$ and $\beta$. Explain how we can use training set predictions to estimate the optimal combination of $(\alpha, \beta)$.
+
+\subsubsection*{Checkpoint 12.2}
+Use the matlab script {\sf main12b.m} to investigate the dynamic linear model on the sun spot data for fixed  $(\alpha, \beta)$. Inspect the deviations of the dynamic linear model from the global linear model. Is the random walk prior, i.e., a non-stationary model with `growing weights', useful in the sunspot case?.
+
+\subsubsection*{Checkpoint 12.3}
+We finally use a linear model to classify sounds in a realtime setting. Use the matlab script {\sf main12c.m} to acquire sound in blocks of length $T$.
+We will use linear model to classify sounds in two classes labeled by targets $t=+/- 1$.
+
+The basic features are derived from the frequency content (using Fourier a window transform and principal component based dimensional reduction).
+
+We first pre-train the classifier by creating two sound sequences, e.g., an `impact sound' from hitting the table with a pen and a clapping sound.
+
+Following the training, start executing new sounds for 60 seconds  and inspect the classifications in the Matlab window.
+
+\vspace*{2cm}
+
+Lars Kai Hansen, November 2016.
+\end{document}

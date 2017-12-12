@@ -1,0 +1,177 @@
+\documentclass[12pt]{article}    % Specifies the document style.
+\usepackage{amsmath}
+\usepackage{times}
+\usepackage{t1enc}
+\textwidth 15cm
+\textheight 23cm
+\oddsidemargin 0cm
+%
+\renewcommand{\floatpagefraction}{0.98}
+\renewcommand{\textfraction}{0.02}
+\renewcommand{\topfraction}{0.98}
+\renewcommand{\bottomfraction}{0.98}
+\def\xb{{\bf x}}
+\def\zb{{\bf z}}
+\def\wb{{\bf w}}
+\def\Ac{\mathcal{A}}
+\def\Dc{\mathcal{D}}
+\def\mub{\text{\boldmath $\mu$}}
+\def\phib{\text{\boldmath $\phi$}}
+\def\Sigb{\text{\boldmath $\Sigma$}}
+\def\Sb{\text{\boldmath $S$}}
+\def\L{\text{\boldmath $\Lambda$}}
+\def\Ub{{\bf U}}
+\def\vb{{\bf v}}
+\def\tb{{\bf t}}
+\def\yb{{\bf y}}
+\def\db{{\bf d}}
+\def\gb{{\bf g}}
+\def\Kb{{\bf K}}
+\def\Ib{{\bf I}}
+\def\ab{{\bf a}}
+\def\Ab{{\bf A}}
+\def\Cb{{\bf C}}
+
+\begin{document}
+
+\section*{Course 02457 Non-Linear Signal Processing, Exercise 10}
+
+This exercise in application of kernel machines is based on C. M. Bishop: {\em Pattern Recognition
+and Machine Learning}, section~6.1,6.2,6.4.1-6.4.3.
+
+Print and comment on the figures produced by the software as outlined below at the {\bf
+Checkpoints}.
+
+\subsection*{The kernel matrix}
+A training set of $N$ data points $D=\{(t_1,\xb_1),(t_2,\xb_2),...,(t_N,\xb_N)\}$ is
+given and let the dimension of input space be $d$. Assume that we want to adapt a linear model with weights $\wb$ based on least squares, i.e., minimizing
+\begin{equation}
+E(\wb) = \sum_{n =1}^{N}( t_n - \sum_{j=0}^{d} w_j x_{j,n} )^2,  \label{lse}
+\end{equation}
+with $x_{0,n}=1$ for all $n$. Assume further that the dimension of input space exceeds the sample size, $d > N$. In this case it is useful to write the $d+1$-dimensional weight vector as a sum of two orthogonal components with respect to the linear subspace spanned by the data vectors,
+\begin{equation}
+\wb = \wb_{\small \perp} + \wb_{\small \parallel},
+\end{equation}
+where $\wb_{\small \parallel}$ is a vector in the subspace spanned by the input data points, while $\wb_{\small \perp}$ is in the orthogonal subspace. In other words
+$\wb_{\small \parallel}$ can be written as the linear combination
+\begin{equation}
+ \wb_{\small \parallel} = \sum_{n=1}^N a_n \xb_n,
+\end{equation}
+while $\wb_{\small \perp}$ is orthogonal to all data points: $\wb_{\small \perp}^{\top}\xb_n =0$.   The sum of squared errors can now be rewritten as
+\begin{eqnarray}
+E(\wb) &=& \sum_{n =1}^{N}( t_n - \wb^{\top}\xb_n )^2 = \sum_{n =1}^{N}( t_n - \wb_{\small \parallel}^{\top}\xb_n )^2 \\ \nonumber
+ &=& \sum_{n =1}^{N}( t_n - \sum_{m=1}^N a_m \xb_m^{\top}\xb_n )^2 = \sum_{n =1}^{N} ( t_n - \sum_{m=1}^N a_m K_{m,n})^2 =\sum_{n =1}^{N}( t_n - (\ab^{\top} \Kb)_n )^2.
+\end{eqnarray}
+where we introduced the notation $(\Kb)_{m,n} = K_{m,n}=\xb_m^{\top}\xb_n$ for the \emph{kernel} matrix of inner products among all input vectors.
+
+More generally we see that for a general feature mapping $\xb \mapsto \phib(\xb)$, we can represent a linear model on feature vectors in terms of their inner products
+\begin{eqnarray}
+E(\wb) &=& \sum_{n =1}^{N}( t_n - \wb^{\top}\phib(\xb_n) )^2 =\sum_{n =1}^{N}( t_n - (\ab^{\top} \Kb)_n )^2.
+\end{eqnarray}
+Here the kernel matrix is $(\Kb)_{m,n} = K_{m,n}=\phib(\xb_m)^{\top}\phib(\xb_n)$. Conversely, we may define feature vectors
+\emph{implicitly} through an $N \times N$ inner product matrix $\Kb$. An example of this is the Gaussian kernel which is widely used in applications,
+\begin{equation}
+ K_{m,n} = e^{ -\| \xb_m -\xb_n \|^2/2\sigma^2 } \ ,
+\end{equation}
+with width parameter $\sigma^2$.
+
+The general idea of kernel methods is to use the kernel matrix to encode input similarity, hence, assuming that targets are similar $\tb_m \approx \tb_n$ when inputs are similar ($\xb_m \approx \xb_n$), hence, when $K_{m,n}$ has a high value.
+
+\subsubsection*{Checkpoint 10.1}
+Here we analyze the structure of the kernel matrix. First let us inspect the gaussian kernel matrix for a simple two cluster simulated data set in $d=2$.
+Run the script {\tt main10a.m} and discuss the structure of kernel matrix for these simple simulated data sets. How does the width of the Gaussian kernel affect the kernel matrix? Imagine the kernel matrix columns as new "pseudo-features", how well do they separate classes?
+Next we investigate the kernel matrix for the case of the sunspot data. Run script {\tt main10b.m} to illustrate the kernel matrix for simple case of 2-dimensional history $d = 2$. Explain the kernel matrix used for predicting targets for test data. Explain the patterns you see in the training and test kernel matrices and relate them to the sunspot time series.
+
+\subsection*{Gaussian process priors for function approximation}
+The Gaussian process implements the relation $(\xb_m \approx \xb_n) \Rightarrow (\tb_m \approx \tb_n)$ in a probabilistic setting. In particular, for function approximation, we assume that the target function $y(\xb)$ values follow a multivariate normal distribution with the kernel $\Kb$ matrix as covariance matrix. For a sample of $N$ points this amounts to
+\begin{equation}
+{\rm cov}(y_1,...,y_N) = \Kb, \ \ \ p(\yb|\Kb) = \frac{1}{|2\pi \Kb|^{\small \frac{1}{2}}} \exp( -{\textstyle \frac{1}{ 2}}\yb^{\top} \Kb^{-1}\yb).
+\end{equation}
+To model an additive noise process we let the observed targets  be given as $t(\xb) = y(\xb) + \epsilon $, with $\epsilon$ being zero mean, Gaussian noise, with variance $\beta^{-1}$. Assuming that noise and inputs are independent, the covariance matrix between a set of targets becomes the sum of covariances:  ${\rm cov}(t_1,...,t_N) \equiv \Cb = \Kb + \beta^{-1}\Ib$.
+
+In machine learning we are given training and test sets and we are interested in the predictive distribution of the test targets given training data and the
+$(N_{\rm test}+N_{\rm train})\times(N_{\rm test}+N_{\rm train})$ kernel matrix $\Cb_{\rm train+test}$ measuring the similarity between all training and test data
+\begin{equation}
+ p(\tb_{\rm test}|\tb_{\rm train},\Cb_{\rm train + test}) = \frac{p(\tb_{\rm test},\tb_{\rm train}|\Cb_{\rm train + test})}{p(\tb_{\rm train}|\Cb_{\rm train})}.
+ \end{equation}
+The predictive distribution is also multivariate Gaussian with mean $\mub_{{\rm test}|{\rm train}}$ and covariance matrix $\Cb_{{\rm test}|{\rm train}}$ given by
+\begin{eqnarray}
+\mub_{{\rm test}|{\rm train}} &=& \Cb_{{\rm test},{\rm train}}\Cb_{\rm train}^{-1}\tb_{\rm train} \label{conmean}\\
+\Cb_{{\rm test}|{\rm train}} &=& \Cb_{\rm test} - \Cb_{{\rm test},{\rm train}}\Cb_{\rm train}^{-1}\Cb_{{\rm train},{\rm test}}  \label{postcov}
+\end{eqnarray}
+following the rules for conditioning in the Gaussian distribution (Bishop Appendix B eq.\ (B.58-B.60), or the Matrix Cookbook eq.\ (331-332)).
+Here $\Cb_{{\rm test},{\rm train}}$ is the  $N_{\rm test}\times N_{\rm train}$ is the sub-matrix of  $\Cb_{\rm train+test}$ connecting test and training inputs.
+
+The maximum posterior prediction of a test target is  $\hat{t}_m =(\mub_{{\rm test}|{\rm train}})_m$.
+The probabilistic representation of the Gaussian process allows us to infer uncertainties for the predictions as well. Using the posterior covariance in eq.\
+(\ref{postcov}) we obtain the estimate
+\begin{equation}
+{\rm std}(t_m)   =\sqrt{ (\Cb_{{\rm test}|{\rm train}})_{m,m}} = \sqrt{(\Cb_{\rm test})_{m,m} - (\Cb_{{\rm test},{\rm train}}\Cb_{\rm train}^{-1}\Cb_{{\rm train},{\rm test}})_{m,m} } \label{postcov}
+\end{equation}
+
+
+\subsubsection*{Checkpoint 10.2}
+We apply a simple Gaussian process (GP) model to the prediction of sunspots. Run the script {\tt main10c.m} to optimize the two parameters ($\beta, \sigma^2$)
+of the kernel given by\\ $(\Cb)_{m,n} = e^{ -\| \xb_m -\xb_n \|^2/2\sigma^2 } + \beta^{-1}\delta_{n,m}$. Explain the relation between the conditional
+mean in eq.\ (\ref{conmean}) above and the test set predictions. How do we optimize parameters?. What is the difference between the two estimates of the test data in figure 2 (green and blue)?.
+How well does a GP with a simple Gaussian kernel work? Comment on the quality of the posterior uncertainty estimate, cf.\ eq.\ (\ref{postcov}).
+
+
+\subsection*{Support vector machine (SVM) classification  }
+The support vector machine implements a classifier which is very similar to the GP, however, without the probabilistic framework. Rather, it is based on geometry, aimed at maximizing the so-called margin, which is a measure of how well separated the classes are by the given decision boundary.
+The classifier for two classes, with class one targets encoded as $t_n = -1$ and class two targets as $t_n = +1$, is given as,
+\begin{equation}
+\hat{t}_m = {\rm sign} \left(\sum_{n=1}^N a_n t_n K(\xb_m,\xb_n) + b\right). \label{svm}
+\end{equation}
+Here $b$ is a offset parameter. The main difference to the GP is the way we estimate the parameters of the SVM, i.e., the set of non-negative weight parameters $\{a_n\}$. We  apply a widely used representation which leads to a box constrained, but still convex, optimization problem
+\begin{eqnarray}
+\tilde{L}(\ab) &= & \sum_{n=1}^N a_n - \sum_{n,m=1}^N a_n a_m t_n t_m K(\xb_n,\xb_m), \nonumber \\
+&& 0   \leq  a_n \leq C, \nonumber \\
+&& \sum_{n=1}^N a_n t_n  = 0,\nonumber \\
+b &=& \frac{1}{|M|}\sum_{n\in M}( t_n -\sum_{m\in S}a_m t_m K(\xb_n,\xb_m)).  \nonumber
+\end{eqnarray}
+Parameter $C$ controls the amount to which points appear inside the margin.  $S$ denotes the set of support vectors ($a_n > 0$), while $M$ is the subset of these for which  $a_n < C$.
+The quadratic problem is solved using a build-in Matlab function {\tt quadprog}.
+
+\subsection*{Pima indian data set}
+Again, the task is to classify a population of women according to the risk of diabetes (two class classification).
+There are 7 input variables, 200 training examples and 332 test examples. 68 (34\%) in the training set and 109 (32.82\%) in the test
+set have been diagnosed with diabetes. In Brian Ripley's textbook {\em Pattern Recognition and Neural Networks} he
+states that his best method obtains about 20\% misclassification on this data set so this is what we can use for reference.
+The input variables are:
+\begin{enumerate}
+\item Number of pregnancies
+\item Plasma glucose concentration
+\item Diastolic blood pressure
+\item Triceps skin fold thickness
+\item Body mass index (weight/height$^2$)
+\item Diabetes pedigree function
+\item Age
+\end{enumerate}
+The target output in the data set is $1$ for examples diagnosed as diabetes, and $2$ for healthy subjects.
+
+\subsubsection*{Checkpoint 10.3}
+Compare the SVM  decision function in eq.\ (\ref{svm}) with the nearest neighbor voting scheme discussed in Exercise 9.
+In the scripts {\tt main10d.m} and {\tt main10e.m} we use the simple Gaussian kernel function as earlier
+\begin{equation}
+ K_{m,n} = e^{ -\| \xb_m -\xb_n \|^2/2\sigma^2 }.
+\end{equation}
+
+First analyze a 2-dimensional synthetic data set with two classes.
+Run {\tt main10d.m}. Inspect the solution given in the Matlab structure {\tt SVM}, what is the number of support vectors?
+
+Next, we analyze the Pima indian data with the script {\tt main10e}.
+We optimize the parameters of the support vector machine by maximizing the accuracy on the test data.
+How many parameters are optimized?
+How many support vectors do you get?
+
+Consider classification from a subset of the seven input variable measures.
+Estimate the performance for a few subsets, can you find a subset
+with performance equal or better than that of the full set?
+
+
+\vspace{2cm}
+\noindent DTU, November 2012, Lars Kai Hansen
+
+
+\end{document}

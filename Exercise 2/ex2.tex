@@ -1,0 +1,273 @@
+\documentclass[times,12pt]{article}    % Specifies the document style.
+\usepackage{amsmath,amsfonts}
+\textwidth 16cm
+\textheight 24cm
+\oddsidemargin 0cm
+\topmargin -1cm
+\def\x{{\bf x}}
+\def\w{{\bf w}}
+\def\A{\mathcal{A}}
+\def\D{\mathcal{D}}
+\def\m{\text{\boldmath $\mu$}}
+\def\S{\text{\boldmath $\Sigma$}}
+\def\L{\text{\boldmath $\Lambda$}}
+\def\U{{\bf U}}
+\def\u{{\bf u}}
+\def\squeeze{\itemsep=0pt\parskip=0pt}
+
+\begin{document}
+\section*{{\it COURSE 02457}\\[5mm] Non-Linear Signal Processing: Exercise 2}
+
+This exercise is based on C.M.\ Bishop: {\it Pattern Recognition
+and Machine Learning}, sections 1.4, 2.3.0-2.3.4 and appendix C.
+The objective of the exercise is to become familiar with the 2D
+normal distribution, the notion of covariance,  and using
+projections on eigenvectors as features.
+
+Print and comment on the figures produced by the software {\sf
+ main2a.m} to {\sf main2e.m} as outlined below at the four {\bf
+ Checkpoints}.
+
+
+\subsection*{Multivariate normal Distribution}
+Let \x\ be a $d$-dimensional variable, i.e. $\x =
+(x_1,x_2,\ldots,x_d)^T$.  The probability of the variable $\x$ lying in a
+region, $\A$, which is a subspace of ${\bf R}^d$ is given by
+\begin{equation}
+p(\x \in \A) = \int_{\A} p(\x) d\x,
+\end{equation}
+where $p(\x)$ is the probability density function of the variable \x.
+
+In one dimension, the normal probability density function  is given by
+\begin{equation}
+\mathcal{N}(x|\mu, \sigma^2) = \frac{1}{\sqrt{2\pi \sigma^2}}\exp \left( -\frac{(x-\mu)^2}{2\sigma^2}\right),
+\end{equation}
+where $\mu$ and $\sigma^2$ are the mean and variance respectively. In
+$d$ dimensions, the general multivariate normal probability density
+function is given by
+\begin{equation}
+\mathcal{N}(\x|\m, \S) = \frac{1}{\sqrt{(2\pi)^d |\S|}}\exp \left(
+  -\frac{1}{2}(\x-\m)^T \S^{-1} (\x-\m)  \right),
+\end{equation}
+where $\m$ is a $d$-dimensional vector, and $\S$ is a $d\times
+d$ covariance matrix.
+
+\subsection*{2D normal Distribution}
+Let \x\ be a 2-dimensional variable, so that $d=2$ in the above
+equations. Let $\D$ be a set of $N$ samples from \x, so that $\D =
+\{\x_1, \x_2, \ldots ,\x_N\}$, where $\x_i = (x_{i,1}, x_{i,2})^T$,
+$i=1,\ldots ,N$.
+
+It is then possible to construct a 2D histogram of the data-set, $\D$,
+by defining a Cartesian grid of small areas $\A_{j,k}$, where $j=1,\ldots,
+M_1$ and $k=1,\ldots, M_2$. The histogram
+is then given by
+\begin{equation}
+  n_{j,k} =  \sum_{\x_i \in \A_{j,k}} 1 \,, \;\; j=1,\ldots,
+M_1,\,k=1,\ldots, M_2,
+\end{equation}
+with $n_{j,k}$ denoting the number of observations of $\x_i$ falling in the region $\A_{j,k}$.
+The normalized histogram is given by
+\begin{equation}
+\tilde{n}_{j,k} = \frac{n_{j,k}}{\sum_{j',k'} n_{{j',k'}}}.
+\label{eq:histnorm1}
+\end{equation}
+If the union of all the areas $\A_{j,k}$ includes all the samples in
+$\D$, equation~(\ref{eq:histnorm1}) simplifies to
+\begin{equation}
+\tilde{n}_{j,k} = \frac{n_{j,k}}{N}.
+\label{eq:histnorm2}
+\end{equation}
+
+The normalized histogram can be compared with the histogram approximation
+to the probability density function
+\begin{equation}
+P_{j,k} =  \int_{\A_{j,k}} p(\x) d\x \,, \;\; j=1,\ldots,
+M_1,\,k=1,\ldots, M_2.
+\end{equation}
+Alternatively the histogram can be converted to a normalized probability density, simply by dividing the normalized histogram bins with their corresponding areas $\A_{j,k}$
+\begin{equation}
+p_{j,k} =  \frac{\tilde n_{j,k}}{\A_{j,k}}.
+\end{equation}
+Hereby, we obtain a model for the density that is constant over the area $\A_{j,k}$ of each bin.
+\subsubsection*{Checkpoint 2.1:}
+Use the program {\sf main2a.m} to illustrate a 2-dimensional normal
+probability density function given by a mean, $\m$, and covariance
+matrix, $\S$.
+
+Discuss the quality of the histogram as you vary the number of samples, $N$, from small
+ to large values.
+Compare you findings with the results from exercise~1 for the 1D
+normal distribution and relate this to the curse of dimensionality.
+
+\subsection*{Interpretation of Covariance}
+A one-dimensional normal distribution is given by its mean, $\mu$, and
+its variance, $\sigma^2$. The variance describes the variation of
+the variable around its mean.
+
+In two dimensions, each sample consists of two components. Each
+dimension has a mean and a variance just as in the one-dimensional
+case. Consider a sample, $\x=(x_1,x_2)^T$ from a 2D normal
+distribution with mean $\m = (\mu_1, \mu_2)$. If the variance of
+$x_1$, namely $\sigma_1^2$ is large, an individual sample of $x_1$
+may well be quite different from $\mu_1$, and similarly for $x_2$.
+However, there may be a trend that whenever $x_1$ is larger than
+$\mu_1$, $x_2$ is also larger than $\mu_2$, and that whenever
+$x_1$ is smaller than $\mu_1$, $x_2$ is also smaller than $\mu_2$.
+In such a case, $x_1$ and $x_2$ are not independent, and they are
+said to be correlated.
+
+Another term is therefore needed to fully describe the variance of the
+variable, \x, namely the covariance between its components,
+${\rm{cov}} \left[x_1,x_2 \right] \equiv {\mathbb E}[(x_1 -\mu_1)(x_2-\mu_2)]$. The covariance matrix of \x\ is then given by
+\begin{equation}
+  \label{eq:Sigma}
+  \S = \left(
+    \begin{array}{cc}
+      \sigma_1^2 & {\rm{cov}} \left[x_1,x_2 \right]\\
+      {\rm{cov}} \left[x_2,x_1 \right] & \sigma_2^2
+    \end{array}
+\right) \equiv \left(
+    \begin{array}{cc}
+      \sigma_{11} & \sigma_{12}\\
+      \sigma_{21} & \sigma_{22}
+    \end{array}
+  \right).
+\end{equation}
+The terms $\sigma_{12}$ and $\sigma_{21}$ are equal since they
+describe the covariance between the same components. The covariance
+matrix is therefore always symmetric. The magnitude of the covariance
+term for a given correlation between the two components also depends on
+the diagonal variance terms. A useful quantity describing
+the correlation between the components is the correlation coefficient,
+$\rho$. It is the normalized covariance and is given by
+\begin{equation}
+  \label{eq:k}
+  \rho = \frac{{\rm{cov}} \left[x_1,x_2 \right]}{\sqrt{\sigma_{1}^2\sigma_{2}^2}} = \frac{\sigma_{12}}{\sqrt{\sigma_{11}\sigma_{22}}}\,.
+\end{equation}
+where $\rho \in [-1,1]$. However, the limiting case $\rho=\pm1$ corresponds to a
+perfect linear relationship between $x_1$ and $x_2$. In this case the
+variable, \x, is not really 2-dimensional since one component
+completely defines the other.
+
+\iffalse
+\vspace{1cm}\\
+\fbox{\parbox[t]{0.95\textwidth}{{\bf Example 1:}\newline Imagine
+    describing a person by a 2D variable consisting of the following
+    components: $x_1$, the height of the person, and $x_2$, the
+    weight of the person. If all people had the exact same shape,
+    there would be an exact relationship between the weight and
+    height of a person. However, in real life, the shapes and sizes
+    of people vary somewhat. But there is a trend that tall people
+    usually weigh more than short people. So although there is no
+    exact relation between height and weight, they are said to
+    correlate positively and the covariance between height and
+    weight, $\sigma_{12}$, is positive. $\sigma_1^2$ is the variance
+    of the height of people regardless of their weight, and
+    $\sigma_2^2$ is the variance of the weight of people regardless
+    of their height. }}
+\vspace{0.5cm}\\
+\fbox{\parbox[t]{0.95\textwidth}{{\bf Example 2:}\newline
+    Imagine another example where the components of \x\ are $x_1$, the
+    height of a person, and $x_2$, the number of steps this person
+    needs to walk 1~km. Again there is no exact relationship, but one
+    would expect that the taller the person, the longer the steps, and
+    hence the fewer steps needed. In this case $\sigma_{12}$ is
+    negative.  }  }
+\fi
+\subsubsection*{Checkpoint 2.2:}
+Use the program {\sf main2b.m} to visualize the probability density
+functions of 2D normal distributions with different covariance
+matrices. For example, try to fix the variances,
+$\sigma_1^2$ and $\sigma_2^2$, while only changing the covariance.
+Think of an example where there is no correlation between the
+components and implement this distribution.  Comment on the dependence
+of the orientation and shape of the ellipsoids in the contour plots of
+quadratic form induced by the covariance matrix.
+
+\subsection*{Coordinate Transformation}
+For some non-linear signal detection algorithms
+it is desired that the input should have zero mean, unit variance and
+zero covariance. The advantage of this is that it is possible to use
+the same algorithm (and not changing the control parameters of it)
+ for variables of very different origins and covariation.
+
+Geometrically, such a normalization corresponds to a coordinate
+transformation to the system defined by the eigenvectors of
+the covariance matrix. Typically, the mean and covariance matrix are
+not known, and must therefore be estimated from the data-set, $\D =
+\{\x_1, \x_2, \ldots ,\x_N\}$:
+\begin{eqnarray}
+  \widehat{\x} & = & \frac{1}{N}\sum_{i=1}^N \x_i\\
+  \widehat{\S} & = & \frac{1}{N-1}\sum_{i=1}^N
+  (\x_i-\widehat{\x})(\x_i-\widehat{\x})^T\, .
+\end{eqnarray}
+The eigenvalue equation for the covariance matrix is
+\begin{equation}
+ \widehat{\S}\u_j = \lambda_j\u_j\,,\;\; j=1,\ldots,d\,,
+\end{equation}
+where $\lambda_j$ is the $j$'th eigenvalue and $\u_j$ is the
+corresponding eigenvector of $\widehat{\S}$. The transformed input variables are
+then given by
+\begin{equation}
+  \label{eq:trans}
+  \tilde{\x}_i = \L^{-1/2}\U^T(\x_i-\widehat{\x}),
+\end{equation}
+where
+\begin{eqnarray}
+  \U &=& (\u_1,\ldots, \u_d)\\
+  \L &=& \text{diag}\left(\lambda_1, \ldots, \lambda_d \right).
+\end{eqnarray}
+It can be shown that the transformed data-set, $\tilde{\D} =
+\{\tilde{\x}_1, \tilde{\x}_2, \ldots ,\tilde{\x}_N\}$ has zero mean
+and a covariance matrix given by the unit matrix.
+
+\subsubsection*{Checkpoint 2.3:}
+Use the program {\sf main2c.m} to calculate the eigenvalues and
+eigenvectors of the covariance matrix for different
+distributions. Comment on the geometrical significance of the
+eigenvalues and eigenvectors. Compare the transformed data-sets from
+different distributions. What happens if the term $\L^{-1/2}$ is
+removed from equation~(\ref{eq:trans})?
+
+\subsection*{Projection on Eigenvectors}
+In some cases, the measured data is of a lower ``true'' dimension than
+the apparent dimension of the data vector. For example, imagine a data-set of a
+3-dimensional variable. If all the data are on a straight line, the
+true dimension of the data is only 1D. If the data-set is
+transformed to a coordinate system, where the variation of
+the data is along one of the axes, the two other components can be
+ignored.
+
+Let $\lambda_1, \ldots, \lambda_d$ be the ordered set of eigenvalues
+of the covariance matrix, such that $\lambda_1 \ge \lambda_2 \ge \ldots
+\ge \lambda_d$. If there exists a number $m$, such that $\lambda_i \gg
+\lambda_j$, $i = 1,\ldots,m$, and $j=m+1,\ldots,d$, then the data-set
+can be transformed to a coordinate system, where most of the
+signal variance is in an $m$-dimensional linear subspace  spanned by the $m$'th  first eigenvectors
+in the ordered list. This transformation is again given by the eigenvectors of the
+covariance matrix $(\U)$,
+\begin{equation}
+  \label{eq:trans2}
+  \tilde{\x}_i= \U^T(\x_i-\widehat{\x}).
+\end{equation}
+If we extract only the first $m$ components of the transformed datavector $\tilde{\x}$
+we obtain a signal that carries most of the variation of the original signal.
+Such reduction of the effective dimensionality of the problem is also known
+as extraction of features.
+
+\subsubsection*{Checkpoint 2.4:}
+Use the programs {\sf main2d.m} and {\sf main2e.m} to transform 2D
+datasets into the eigenvector-space and comment on the ``true'' dimensionality
+of the classification problems.
+
+\subsubsection*{Challenges (not part of the curriculum)}
+1) Prove that the transformed data in Eq.\ (\ref{eq:trans}) is zero mean and has a unit covariance matrix.
+
+\noindent 2) How would you make the decision on the number of principal components to retain? Hint: Check  K.W.\ Jorgensen, L.K.\ Hansen: {\it Model selection for Gaussian kernel PCA denoising.} IEEE Transactions on Neural Networks and Learning Systems  {\bf 23}(1):163-168 (2012), the references in this paper.
+
+\vspace*{2cm}
+\noindent DTU, September 2009,\\[2mm]
+Karam Sidaros, Lars Kai Hansen
+
+\end{document}

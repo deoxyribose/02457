@@ -1,0 +1,211 @@
+\documentclass[times,12pt]{article}    % Specifies the document style.
+\usepackage{amsmath}
+\textwidth 16cm
+\textheight 24cm
+\oddsidemargin 0cm
+\topmargin -1cm
+\def\x{{\bf x}}
+\def\X{{\bf X}}
+\def\w{{\bf w}}
+\def\t{{\bf t}}
+\def\T{{\bf T}}
+\def\I{{\bf I}}
+\def\S{{\bf S}}
+\def\m{{\bf m}}
+\def\A{\mathcal{A}}
+\def\D{\mathcal{D}}
+\def\squeeze{\itemsep=0pt\parskip=0pt}
+
+\begin{document}
+
+%\section*{04364 NON-LINEAR SIGNAL PROCESSING: EXERCISE 2}
+\section*{02457 Non-Linear Signal Processing: Exercise 3}
+
+This exercise is based on C.M.~Bishop: {\it Machine Learning and
+Pattern Recognition}, sections 3.1, 4.1.
+
+Your task is to use the MATLAB software to illustrate and discuss the
+linear model for prediction and Fisher's linear
+discriminant for classification.
+
+Print and comment on the figures produced by the software {\sf
+  main3a.m} to {\sf main3c.m} as outlined below at the three {\bf
+  checkpoints}.
+
+\subsection*{Linear Models}
+Let  $y(\x)$ be a function of the vector \x, where
+$\x=(x_1,\ldots,x_d)^\top$. To estimate $y(\x)$  we have a
+dataset, $\D = \left\{ (\x_n,t_n) \right\}$, $
+n=1,\ldots,N$ of $N$ corresponding values of \x\ and noisy observations of $y(\x)$.
+
+Let us model the function $y(\x)$ with the linear expression
+\begin{equation}
+  \label{eq:sum1}
+  y(\x) = w_0 + \sum_{i=1}^d w_i x_i \;\; = \;\; w_0 + \w^\top \x,
+\end{equation}
+where \w\ is a weight vector.
+
+The constant term in equation~(\ref{eq:sum1}) can be included in the
+weight vector, \w, where another term is also added to \x, such that
+$\x=(1,x_1,\ldots,x_d)^\top$. This reduces equation~(\ref{eq:sum1}) to
+\begin{equation}
+  \label{eq:sum2}
+  y(\x) = \sum_{i=0}^d w_i x_i \;\; = \;\; \w^\top \x.
+\end{equation}
+
+The weight-vector, \w, that models the given data-set (training-set)
+best is found through minimizing an error function. Here we shall use the
+sum-of-squares error function given by
+\begin{eqnarray}
+  \label{eq:error1}
+  E(\w) &=& \frac{1}{2} \sum_{n=1}^N \left\{ y(\x_n;\w)-t_n
+  \right\}^2\\
+  \label{eq:error2}
+       &=&  \frac{1}{2} \sum_{n=1}^N \left\{ \w^\top\x_n -t_n  \right\}^2.
+\end{eqnarray}
+
+Introducing the matrix, \X, where $\X^\top=(\x_1\; \x_2\; \ldots
+\x_N)$ and the vector, $\t = (t_1, t_2,\ldots, t_N)^\top$,
+equation~(\ref{eq:error2}) can be rewritten as
+\begin{equation}
+  \label{eq:error3}
+  E(\w) = \frac{1}{2} \left( \w^\top \X^\top \X \w + \t^\top \t -
+  2\w^\top \X^\top \t  \right).
+\end{equation}
+Since equation~(\ref{eq:error3}) is quadratic in \w, the exact value
+of \w\ minimizing $E(\w)$ can be found analytically by equating the
+derivative of equation~(\ref{eq:error3}) to zero. This gives the
+normal equations for the least-squares problem:
+\begin{equation}
+  \label{eq:opt}
+  \X^\top \X \w = \X^\top \t.
+\end{equation}
+Solving for \w\ gives the optimal \w.
+Since \X\ is an $N\times (d+1)$ matrix, $\X^\top \X$ is a $(d+1)\times
+(d+1)$ square matrix. Thus the solution to equation~(\ref{eq:opt}) is
+given by
+\begin{equation}
+  \label{eq:sol}
+  \w = (\X^\top \X)^{-1} \X^\top \t \;\; \equiv \;\; \X^\dag \t,
+\end{equation}
+where $\X^\dag$ is a $(d+1)\times N$ matrix known as the {\sl
+  pseudo-inverse} of \X. $\X^\dag$ has the property that $\X^\dag \X =
+  \I$, whereas $\X\X^\dag \neq \I$ in general.
+
+\subsubsection*{Checkpoint 3.1:}
+Use the program {\sf main3a.m} to create a training-set with a
+2-dimensional input variable and a 1-dimensional output variable.
+Compare the estimated weight vector with the true one and the
+dependence on both the noise level and number of points in the
+training-set. Note, the software rounds $N$ to be a square number,
+due to the lattice presentation.
+%
+%Comment on the geometrical interpretation of the weight
+%vector, \w.
+
+\subsection*{Time Series Prediction}
+An example where the linear model can be used is in time series
+prediction. To illustrate this, consider the example of the sunspot
+measurements. The number of sunspots oscillates almost periodically
+over a period of some years. The average number of sunspots has been
+measured yearly since 1700. Imagine we want to predict the average
+number of sunspots next year. The linear model can be used for this.
+
+Let the number of sunspots in year $n$ be $x_n$.  Let's assume that
+the number of sunspots in year $n$ only depends on the number of
+sunspots in the previous $d$ years. This is reasonable since there
+must be a limit as to how far back one can expect a correlation. This
+can be expressed as
+\begin{equation}
+  \label{eq:iterf}
+  x_n = f(x_{n-1}, x_{n-2}, \ldots x_{n-d}).
+\end{equation}
+Approximating the function $f$ with a linear model gives
+\begin{equation}
+  \label{eq:sun1}
+  x_n = w_0 + \sum_{j=1}^d w_j x_{n-j}.
+\end{equation}
+This corresponds to equation~(\ref{eq:sum1}), and hence is the same
+problem given by equations~(\ref{eq:sum2}) to~(\ref{eq:sol}), where
+the training set is given by
+\begin{equation}
+  \label{eq:train}
+  \left.
+  \begin{array}{ccl}
+    \x_n &=& (1, x_{n-d}, \ldots , x_{n-1})^\top\\
+    t_n &=& x_n
+  \end{array} \right\} \;\; n = 1,\ldots,N-d-1.
+\end{equation}
+Note the important difference in the notations $\x_n$ and $x_n$.
+The weights can be found using equation~(\ref{eq:sol}), and the
+predicted value, $x_{n+1}$, can be found from
+\begin{equation}
+  \label{eq:pred}
+  x_{n+1} = y(\x_n) = \w^\top\x_n.
+\end{equation}
+
+\subsubsection*{Checkpoint 3.2:}
+Use the program {\sf main3b.m} to perform a time series prediction of
+the number of sunspots. Compare the actual measurements with the
+predicted values as a function of the number of weights, $d$, (hence
+years) included in the model. Explain the value of the error for very large $d$.
+
+\subsection*{Fisher's Linear Discriminant}
+In exercise~2, we saw that a multidimensional variable can be
+projected onto the directions of largest covariance by a coordinate
+transformation to the coordinate system spanned by the eigenvectors of
+the covariance matrix. This may facilitate classification of the
+data. However, there are also some cases, where the direction that
+maximizes class separation doesn't correspond to any of the
+eigenvectors. In such a case, the coordinate transformation does not
+solve the problem. However, the direction of maximum class separation
+can be found using Fisher's linear discriminant.
+
+Consider a two-class problem in which there are $N_1$ points of class
+$C_1$ and $N_2$ points of class $C_2$. The mean vectors of the two
+classes are given by
+\begin{eqnarray}
+  \label{eq:m1}
+  \m_1 &=& \frac{1}{N_1} \sum_{n\in C_1} \x_n\\
+  \m_2 &=& \frac{1}{N_2} \sum_{n\in C_2} \x_n.
+\end{eqnarray}
+Let the projection of a data vector, \x, onto a the direction of
+maximum class separation be
+\begin{equation}
+  \label{eq:fisher1}
+  y=\w^\top\x.
+\end{equation}
+This is the direction along which the probability density
+functions of the two classes, $p(y|C_1)$ and $p(y|C_2)$, overlap
+the least. It can be shown by maximizing Fisher's criterion  that
+the direction vector for the projection, \w, is given by
+\begin{equation}
+  \label{eq:wsol}
+  \w \propto \S_w^{-1}(\m_2 -\m_1),
+\end{equation}
+where $\S_w$ is the total within-class variation matrix, given by
+\begin{equation}
+  \label{eq:Sw}
+  \S_w = \sum_{n\in C_1} (\x_n-\m_1)(\x_n -\m_1)^\top +
+         \sum_{n\in C_2} (\x_n-\m_2)(\x_n -\m_2)^\top.
+\end{equation}
+
+\subsubsection*{Checkpoint 3.3:}
+Use the program {\sf main3c.m} to find the direction maximizing class
+separation for a two-class problem. In the figure class $C_1$ is color coded as blue and class $C_2$ as red. Compare the projection of the
+data-set onto one-dimension with the projections found using
+eigenvector transformation as illustrated in exercise~2. Compose
+different data-sets and compare the performance of the two methods in
+each case.
+
+\subsubsection*{Challenge (not part of the curriculum):}
+Modify the program {\sf main3b.m} to predict the number of sunspots two
+or more years ahead. Compare and discuss the predictions of the one vs.\ two step ahead prediction for different model dimensions ($d$)
+
+
+
+\vspace*{2cm}
+\noindent DTU, September 2009,\\[2mm]
+Karam Sidaros, Lars Kai Hansen
+
+\end{document}

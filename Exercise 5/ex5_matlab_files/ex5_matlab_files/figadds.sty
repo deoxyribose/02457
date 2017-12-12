@@ -1,0 +1,226 @@
+% PSKH figure environment.
+
+%\def\epslib{/users/students/ch/latex/master-rapport/}
+
+\usepackage{graphicx}
+\usepackage{subfigure}
+
+\newcommand{\figy}[3]
+{
+  \begin{figure}[!htbp]
+    \vspace*{#1}
+    \caption{#2}
+    \label{#3}
+  \end{figure}
+}
+
+\newcommand{\figps}[3]
+{
+  \begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{#1}
+    \caption{#2}
+    \label{#3}
+  \end{figure}
+}
+
+\newcommand{\figpsx}[4]
+{
+  \begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=#1]{#2}
+    \caption{#3}
+    \label{#4}
+  \end{figure}
+}
+
+\newcommand{\figpsy}[4]
+{
+  \begin{figure}[!htbp]
+    \centering
+    \includegraphics[totalheight=#1]{#2}
+    \caption{#3}
+    \label{#4}
+  \end{figure}
+}
+
+\newcommand{\figtwoy}[5]
+{
+  \begin{figure}[!htbp]
+    \begin{minipage}[t]{0.5\linewidth}
+      \vspace*{#1}
+      \caption{#2}
+      \label{#3}
+    \end{minipage}%
+    \begin{minipage}[t]{0.5\linewidth}
+      \vspace*{#1}
+      \caption{#4}
+      \label{#5}
+    \end{minipage}
+  \end{figure}
+}
+
+\newcommand{\figpstwo}[6]
+{
+  \begin{figure}[!htbp]
+    \begin{minipage}[t]{0.5\linewidth}
+      \centering
+      \includegraphics[width=0.95\textwidth]{\epslib/#1}
+      \caption{#2}
+      \label{#3}
+    \end{minipage}%
+    \begin{minipage}[t]{0.5\linewidth}
+      \centering
+      \includegraphics[width=0.95\textwidth]{\epslib/#4}
+      \caption{#5}
+      \label{#6}
+    \end{minipage}
+  \end{figure}
+}
+
+\newcommand{\figpstwox}[8]
+{
+  \begin{figure}[!htbp]
+    \begin{minipage}[t]{0.5\linewidth}
+      \centering
+      \includegraphics[width=#1]{#2}
+      \caption{#3}
+      \label{#4}
+    \end{minipage}%
+    \begin{minipage}[t]{0.5\linewidth}
+      \centering
+      \includegraphics[width=#5]{#6}
+      \caption{#7}
+      \label{#8}
+    \end{minipage}
+  \end{figure}
+}
+
+\newcommand{\figpstwoy}[8]
+{
+  \begin{figure}[!htbp]
+    \begin{minipage}[t]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=#1]{#2}
+      \caption{#3}
+      \label{#4}
+    \end{minipage}%
+    \begin{minipage}[t]{0.5\linewidth}
+      \centering
+      \includegraphics[totalheight=#5]{#6}
+      \caption{#7}
+      \label{#8}
+    \end{minipage}
+  \end{figure}
+}
+
+\newcommand{\figthreey}[7]
+{
+  \begin{figure}[!htbp]
+    \begin{minipage}[t]{0.333\linewidth}
+      \vspace*{#1}
+      \caption{#2}
+      \label{#3}
+    \end{minipage}%
+    \begin{minipage}[t]{0.333\linewidth}
+      \vspace*{#1}
+      \caption{#4}
+      \label{#5}
+    \end{minipage}%
+    \begin{minipage}[t]{0.333\linewidth}
+      \vspace*{#1}
+      \caption{#6}
+      \label{#7}
+    \end{minipage}
+  \end{figure}
+}
+
+\newcommand{\figpsthree}[9]
+{
+  \begin{figure}[!htbp]
+    \begin{minipage}[t]{0.333\linewidth}
+      \centering
+      \includegraphics[width=\textwidth]{#1}
+      \caption{#2}
+      \label{#3}
+    \end{minipage}%
+    \begin{minipage}[t]{0.333\linewidth}
+      \centering
+      \includegraphics[width=\textwidth]{#4}
+      \caption{#5}
+      \label{#6}
+    \end{minipage}%
+    \begin{minipage}[t]{0.333\linewidth}
+      \centering
+      \includegraphics[width=\textwidth]{#7}
+      \caption{#8}
+      \label{#9}
+    \end{minipage}
+  \end{figure}
+}
+
+\renewcommand{\subfigtopskip}{0pt}
+\renewcommand{\subfigcapskip}{0pt}
+\renewcommand{\subfigbottomskip}{-5pt}
+
+\newcommand{\subfigpstwo}[6]
+{
+  \begin{figure}[!htbp]
+    \subfigure[]{%
+      \label{#1}%
+      \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{\epslib/#2}
+      \end{minipage}}%
+    \subfigure[]{%
+      \label{#3}%
+      \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \includegraphics[width=0.95\textwidth]{\epslib/#4}
+      \end{minipage}}%
+    \caption{#5}
+    \label{#6}
+  \end{figure}
+}
+
+
+\newcommand{\subfigpstwox}[8]
+{
+  \begin{figure}[!htbp]
+    \subfigure[]{%
+      \label{#1}%
+      \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \includegraphics[width=#2]{\epslib/#3}
+      \end{minipage}}%
+    \subfigure[]{%
+      \label{#4}%
+      \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \includegraphics[width=#5]{\epslib/#6}
+      \end{minipage}}%
+    \caption{#7}
+    \label{#8}
+  \end{figure}
+}
+
+
+\newcommand{\subfigpstwoy}[8]
+{
+  \begin{figure}[!htbp]
+    \subfigure[]{%
+      \label{#1}%
+      \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \includegraphics[totalheight=#2]{#3}
+      \end{minipage}}%
+    \subfigure[]{%
+      \label{#4}%
+      \begin{minipage}[t]{0.5\linewidth}
+        \centering
+        \includegraphics[totalheight=#5]{#6}
+      \end{minipage}}%
+    \caption{#7}
+    \label{#8}
+  \end{figure}
+}
